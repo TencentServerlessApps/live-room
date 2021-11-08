@@ -1,7 +1,7 @@
 {
   "name": "live-room-app",
   "version": "1.0.0",
-  "description": "The backend service for Labs KTV",
+  "description": "The backend service for application",
   "main": "index.js",
   "url" : "https://github.com/TencentServerlessApps/live-room/issues",
   "dependencies": {

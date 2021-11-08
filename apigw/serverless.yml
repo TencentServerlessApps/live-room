@@ -2,11 +2,11 @@ app: live-room
 stage: prod # The debugger only for test env.
 
 component: apigateway
-name: labs_apigw
+name: live_room_apigw
 
 inputs:
   region: ap-guangzhou
-  serviceName: labs_apigw
+  serviceName: live_room_apigw
   environment: release
   protocols:
     - http

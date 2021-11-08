@@ -50,7 +50,7 @@ sls deploy
 
 Q: 如何查看云函数的日志？
 
-> A: 查看云函数的日志，请点[这里](https://console.cloud.tencent.com/scf/list-detail?rid=1&ns=default&id=application-prod-labs-ktv&menu=log&tab=codeTab)
+> A: 查看云函数的日志，请点[这里](https://console.cloud.tencent.com/scf/list-detail?rid=1&ns=default&id=application-prod-live-room&menu=log&tab=codeTab)
 
 Q: 如何删除云函数？
 

@@ -17,8 +17,8 @@ inputs:
     name: ${name}-${stage}-${app}
     timeout: 10
     vpc:
-      vpcId: ${output:${stage}:${app}:labs_vpc.vpcId}
-      subnetId: ${output:${stage}:${app}:labs_vpc.subnetId}
+      vpcId: ${output:${stage}:${app}:live_room_vpc.vpcId}
+      subnetId: ${output:${stage}:${app}:live_room_vpc.subnetId}
     environments:
       - key: REGION
         value: ap-guangzhou
@@ -29,11 +29,11 @@ inputs:
       - key: MYSQL_USER
         value: root
       - key: MYSQL_HOST
-        value: ${output:${stage}:${app}:labs_db.connection.ip}
+        value: ${output:${stage}:${app}:live_room_db.connection.ip}
       - key: MYSQL_PORT
-        value: ${output:${stage}:${app}:labs_db.connection.port}
+        value: ${output:${stage}:${app}:live_room_db.connection.port}
       - key: MYSQL_PASSWORD
-        value: ${output:${stage}:${app}:labs_db.adminPassword}
+        value: ${output:${stage}:${app}:live_room_db.adminPassword}
       - key: TRTC_TIM_APPID
         value: ${env:TRTC_TIM_APPID}
       - key: TRTC_TIM_SECRET
@@ -41,7 +41,7 @@ inputs:
   apigw:
     isDisabled: false
     environment: release
-    id: ${output:${stage}:${app}:labs_apigw.serviceId}
+    id: ${output:${stage}:${app}:live_room_apigw.serviceId}
     api:
       path: /
       cors: true

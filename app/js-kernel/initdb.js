@@ -2,7 +2,7 @@
 
 let initialized = false;
 
-// Initialize the DB for Labs.
+// Initialize the DB for application.
 async function doInitialize(mysql, mysql2, config) {
   if (initialized) {
     return;
