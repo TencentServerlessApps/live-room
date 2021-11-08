@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+export PORT=9000
+export NODE_ENV='production';
+export NODE_LOG_DIR='/tmp';
+/var/lang/node12/bin/node index.js

@@ -1,0 +1,54 @@
+app: live-room
+stage: prod # The debugger only for test env.
+
+component: http
+name: application
+
+inputs:
+  src:
+    src: ./
+    exclude:
+      - .env
+      - .env.local
+  region: ap-guangzhou
+  faas:
+    runtime: Nodejs12.16
+    framework: koa
+    name: ${name}-${stage}-${app}
+    timeout: 10
+    vpc:
+      vpcId: ${output:${stage}:${app}:labs_vpc.vpcId}
+      subnetId: ${output:${stage}:${app}:labs_vpc.subnetId}
+    environments:
+      - key: REGION
+        value: ap-guangzhou
+      - key: STAGE
+        value: ${stage}
+      - key: MYSQL_DB
+        value: ${app}
+      - key: MYSQL_USER
+        value: root
+      - key: MYSQL_HOST
+        value: ${output:${stage}:${app}:labs_db.connection.ip}
+      - key: MYSQL_PORT
+        value: ${output:${stage}:${app}:labs_db.connection.port}
+      - key: MYSQL_PASSWORD
+        value: ${output:${stage}:${app}:labs_db.adminPassword}
+      - key: TRTC_TIM_APPID
+        value: ${env:TRTC_TIM_APPID}
+      - key: TRTC_TIM_SECRET
+        value: ${env:TRTC_TIM_SECRET}
+  apigw:
+    isDisabled: false
+    environment: release
+    id: ${output:${stage}:${app}:labs_apigw.serviceId}
+    api:
+      path: /
+      cors: true
+      timeout: 30
+      qualifier: $DEFAULT
+    protocols:
+      - http
+      - https
+
+# https://github.com/serverless-components/tencent-http/blob/master/docs/configure.md

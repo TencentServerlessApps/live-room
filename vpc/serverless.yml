@@ -1,0 +1,13 @@
+app: live-room
+stage: prod # The debugger only for test env.
+
+component: vpc
+name: labs_vpc
+
+inputs:
+  region: ap-guangzhou
+  zone: ap-guangzhou-4
+  vpcName: labs
+  subnetName: labs-serverless
+
+# https://github.com/serverless-components/tencent-vpc/blob/master/docs/configure.md

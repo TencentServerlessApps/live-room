@@ -1,0 +1,16 @@
+app: live-room
+stage: prod # The debugger only for test env.
+
+component: cynosdb
+name: labs_db
+
+inputs:
+  region: ap-guangzhou
+  zone: ap-guangzhou-4
+  vpcConfig:
+    vpcId: ${output:${stage}:${app}:labs_vpc.vpcId}
+    subnetId: ${output:${stage}:${app}:labs_vpc.subnetId}
+  dbMode: SERVERLESS
+  payMode: 0
+
+# https://github.com/serverless-components/tencent-cynosdb/blob/master/docs/configure.md
