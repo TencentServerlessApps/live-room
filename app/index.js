@@ -85,6 +85,7 @@ router.all('/base/v1/', async (ctx) => {
 
 // Redirect /${stage}/xxx to /xxx
 app.use(new Router({prefix: `/${process.env.STAGE}`}).use(router.routes()).routes());
+if (process.env.STAGE !== 'prod') app.use(new Router({prefix: `/prod`}).use(router.routes()).routes());
 
 app.listen(9000, () => {
   console.log(`Server start on http://localhost:9000`);

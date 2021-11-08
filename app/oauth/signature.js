@@ -15,12 +15,14 @@ const md5 = require('md5');
 const jwt = require('jsonwebtoken');
 const TLSSigAPIv2 = require('tls-sig-api-v2');
 
-function resolveSecret(tag) {
-  return process.env.USER_VERIFY_SECERT || '';
-}
+async function resolveSecret(q) {
+  const [r0] = await mysql.query(`SELECT salt FROM user_salts WHERE name=?`, [q.username]);
+  if (!r0 || !r0.length) throw errors.create(errors.SystemVerifyError, `invalid username=${q.username}`);
 
-function resovleUserIdSeed() {
-  return process.env.USER_VERIFY_SECERT || '';
+  const [salt] = r0;
+  if (!salt || !salt.salt) throw errors.create(errors.SystemVerifyError, `invalid salt for username=${q.username}`);
+
+  return salt.salt;
 }
 
 async function createOrUpdateUser(q, userId) {
@@ -32,20 +34,22 @@ async function createOrUpdateUser(q, userId) {
   await users.userInsert({userId: userId, avatar: avatar, createUtc: nowUtc});
 
   // Update user information.
-  await users.userUpdate(userId, {
-    phone: q.phone || null,
-    email: q.email || null,
-    tag: q.tag || null,
+  const params = {
     updateUtc: nowUtc,
     loginUtc: nowUtc,
-  });
+  };
+  if (q.name) params.name = q.name;
+  if (q.phone) params.phone = q.phone;
+  if (q.email) params.email = q.email;
+  if (q.tag) params.tag = q.tag;
+  await users.userUpdate(userId, params);
 }
 
 exports.main_handler = async (ctx) => {
   // Parse query params and check it.
   const q = utils.parseKoaRequest(ctx);
 
-  if (!q.username) throw errors.create(errors.UserCodeInvalid, `username required`);
+  if (!q.username) throw errors.create(errors.SystemVerifyError, `username required`);
 
   const {username, hash} = q;
   const tag = q.tag || '';
@@ -53,14 +57,14 @@ exports.main_handler = async (ctx) => {
   const nonce = q.nonce || '';
   const signature = q.signature || '';
 
-  const secret = resolveSecret(tag);
+  const secret = await resolveSecret(q);
   const source = `${username}-${tag}-${ts}-${nonce}`;
   const verify = md5(`${source}-${secret}`);
   console.log(`signature-params username=${username}, hash=${hash}, tag=${tag}, ts=${ts}, nonce=${nonce}, source=${source}-${'x'.repeat(secret.length)}, signature=${signature}, verify=${verify}`);
-  if (process.env.USER_VERIFY_SECERT && signature !== verify) throw errors.create(errors.SystemVerifyError, `invalid signature ${JSON.stringify(q)}`);
+  if (signature !== verify) throw errors.create(errors.SystemVerifyError, `invalid signature ${JSON.stringify(q)}`);
 
   // The openid or userid.
-  const userIdSeed = resovleUserIdSeed();
+  const userIdSeed = secret;
   const userId = md5(`${userIdSeed}-${username}-${tag}`);
 
   // Update the user info, @see https://www.npmjs.com/package/jsonwebtoken#usage

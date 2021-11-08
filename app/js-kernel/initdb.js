@@ -144,10 +144,24 @@ async function doInitialize(mysql, mysql2, config) {
     ) ENGINE=InnoDB AUTO_INCREMENT=3079 DEFAULT CHARSET=utf8 COMMENT='房间的用户列表。'
   `);
 
+  const [r6] = await mysql.query(`
+    CREATE TABLE user_salts (
+      saltId bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Salt的ID',
+      name varchar(128) DEFAULT NULL COMMENT '用户名',
+      salt varchar(256) DEFAULT NULL COMMENT '用户的SALT',
+      ts varchar(32) DEFAULT NULL COMMENT '用户注册时间戳',
+      nonce varchar(64) DEFAULT NULL COMMENT '用户随机数',
+      createUtc datetime DEFAULT NULL COMMENT '房间创建时间',
+      updateUtc datetime DEFAULT NULL COMMENT '房间更新时间',
+      PRIMARY KEY (saltId),
+      UNIQUE KEY by_name (name) USING BTREE
+    ) ENGINE=InnoDB AUTO_INCREMENT=1024 DEFAULT CHARSET=utf8 COMMENT='用户的Salt。'
+  `);
+
   initialized = true;
 
   const cost = new Date() - starttime;
-  console.log(`initdb-ok create ${config.database}, cost=${cost}ms, db=${JSON.stringify(r0)} id_generator=${JSON.stringify(r1)}, rooms=${JSON.stringify(r2)}, sessions=${JSON.stringify(r3)}, users=${JSON.stringify(r4)}, users_in_room=${JSON.stringify(r5)}`);
+  console.log(`initdb-ok create ${config.database}, cost=${cost}ms, db=${JSON.stringify(r0)} id_generator=${JSON.stringify(r1)}, rooms=${JSON.stringify(r2)}, sessions=${JSON.stringify(r3)}, users=${JSON.stringify(r4)}, users_in_room=${JSON.stringify(r5)}, salts=${JSON.stringify(r6)}`);
 }
 
 function create({mysql, mysql2, config}) {
