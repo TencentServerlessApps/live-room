@@ -43,11 +43,7 @@
 									"pm.collectionVariables.set('password', password);",
 									"",
 									"const ts = new Date().getTime().toString();",
-									"setQuery('ts', ts);",
-									"",
 									"const nonce = Math.random().toString().slice(-6);",
-									"setQuery('nonce', nonce);",
-									"",
 									"const salt = CryptoJS.MD5(`${username}-${password}-${ts}-${nonce}`).toString();",
 									"pm.collectionVariables.set('salt', salt);",
 									"setQuery('salt', salt);",
@@ -62,7 +58,7 @@
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "{{service}}/base/v1/oauth/register?username=&ts&nonce&salt",
+							"raw": "{{service}}/base/v1/oauth/register?username=&salt",
 							"host": [
 								"{{service}}"
 							],
@@ -77,16 +73,6 @@
 									"key": "username",
 									"value": "",
 									"description": "用户名称或者UIN等标识，由脚本生成"
-								},
-								{
-									"key": "ts",
-									"value": null,
-									"description": "时间戳，由脚本生成"
-								},
-								{
-									"key": "nonce",
-									"value": null,
-									"description": "随机数，由脚本生成"
 								},
 								{
 									"key": "salt",
