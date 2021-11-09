@@ -1,0 +1,10 @@
+{
+  "name": "labs-ktv",
+  "version": "1.0.0",
+  "description": "The backend service for Labs KTV",
+  "main": "index.js",
+  "url" : "https://github.com/TencentServerlessApps/labs-ktv/issues",
+  "scripts": {
+    "postinstall": "node bin/npm-postinstall"
+  }
+}

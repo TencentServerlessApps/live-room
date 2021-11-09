@@ -14,11 +14,9 @@ exports.main_handler = async (ctx) => {
   const q = utils.parseKoaRequest(ctx);
 
   if (!q.username) throw errors.create(errors.SystemVerifyError, `username required`);
-  if (!q.ts) throw errors.create(errors.SystemVerifyError, `ts required`);
-  if (!q.nonce) throw errors.create(errors.SystemVerifyError, `nonce required`);
   if (!q.salt) throw errors.create(errors.SystemVerifyError, `salt required`);
   if (q.salt.length < 32) throw errors.create(errors.SystemVerifyError, `salt must be 32B+`);
-  console.log(`register-params username=${q.username}, ts=${q.ts}, nonce=${q.nonce}, salt=${q.salt}`);
+  console.log(`register-params username=${q.username}, salt=${q.salt}`);
 
   // Fail if user exists.
   const [r0] = await mysql.query(`SELECT name FROM user_salts WHERE name=?`, [q.username]);
@@ -27,8 +25,8 @@ exports.main_handler = async (ctx) => {
   // Register new user with salt.
   const nowUtc = moment.utc().format(consts.MYSQL_DATETIME);
   const [r1] = await mysql.query(
-    `INSERT INTO user_salts (name,salt,ts,nonce,createUtc,updateUtc) VALUES(?,?,?,?,?,?)`,
-    [q.username, q.salt, q.ts, q.nonce, nowUtc, nowUtc],
+    `INSERT INTO user_salts (name,salt,createUtc,updateUtc) VALUES(?,?,?,?)`,
+    [q.username, q.salt, nowUtc, nowUtc],
   );
   if (!r1 || r1.affectedRows !== 1) throw errors.create(errors.SystemVerifyError, `register name=${q.username} fail, r1=${JSON.stringify(r1)}`);
 

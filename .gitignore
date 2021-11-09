@@ -14,4 +14,4 @@ node_modules
 /getUserSig
 *.zip
 jmeter.log
-/*.json
+/test.json
