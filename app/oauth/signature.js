@@ -65,7 +65,7 @@ exports.main_handler = async (ctx) => {
 
   // The openid or userid.
   const userIdSeed = secret;
-  const userId = md5(`${userIdSeed}-${username}-${tag}`);
+  const userId = md5(`${userIdSeed}-${username}-${tag}`).slice(-8);
 
   // Update the user info, @see https://www.npmjs.com/package/jsonwebtoken#usage
   const token = jwt.sign(
