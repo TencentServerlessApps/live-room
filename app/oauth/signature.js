@@ -63,9 +63,11 @@ exports.main_handler = async (ctx) => {
   console.log(`signature-params username=${username}, hash=${hash}, tag=${tag}, ts=${ts}, nonce=${nonce}, source=${source}-${'x'.repeat(secret.length)}, signature=${signature}, verify=${verify}`);
   if (signature !== verify) throw errors.create(errors.SystemVerifyError, `invalid signature ${JSON.stringify(q)}`);
 
-  // The openid or userid.
-  const userIdSeed = secret;
-  const userId = md5(`${userIdSeed}-${username}-${tag}`).slice(-8);
+  // Covert the md5 of username and secret to int number.
+  const userId = (md5(`${secret}-${username}-${tag}`)
+    .split('').map((v, i) => v.charCodeAt(0)*Math.pow(10, i))
+    .reduce((a, b) => a + b, 0) % 0x001ffffff)
+    .toString();
 
   // Update the user info, @see https://www.npmjs.com/package/jsonwebtoken#usage
   const token = jwt.sign(
