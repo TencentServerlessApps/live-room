@@ -32,6 +32,8 @@ function create(router) {
         res = await require('./generate_roomid').main_handler(ctx);
       } else if (ctx.params.api === 'room_detail') {
         res = await require('./room_detail').main_handler(ctx);
+      } else if (ctx.params.api === 'update_room') {
+        res = await require('./update_room').main_handler(ctx);
       } else {
         throw new Error(`invalid api ${ctx.params.api}`);
       }
