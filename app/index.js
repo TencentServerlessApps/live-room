@@ -8,6 +8,7 @@ const Router = require('koa-router');
 const Cors = require('koa2-cors');
 const BodyParser = require('koa-bodyparser');
 const errors = require('js-core/errors');
+const pkg = require('./package.json');
 
 // Default to local development env.
 process.env.STAGE = process.env.STAGE || 'local';
@@ -61,6 +62,15 @@ app.use(async (ctx, next) => {
 
   if (ctx.body && ctx.body.errorCode) {
     ctx.status = 500;
+  }
+});
+
+// Append version for normal body.
+app.use(async (ctx, next) => {
+  await next();
+
+  if (ctx.body && !ctx.body.version) {
+    ctx.body.version = pkg.version;
   }
 });
 

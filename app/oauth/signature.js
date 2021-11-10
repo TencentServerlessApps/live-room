@@ -93,7 +93,6 @@ exports.main_handler = async (ctx) => {
 
   console.log(`signature-ok userId=${userId}, expire=${tokenExpire}, appid=${sdkAppId}, userSig=${userSig}, userSigExpire=${consts.TRTC_EXPIRE}, token=${token}`);
   return errors.data({
-    version: '1.0.0',
     // User config.
     userId: userId,
     apaasUserId: userId, // TODO: FIXME: Remove the userId for apaasUserId exists.
