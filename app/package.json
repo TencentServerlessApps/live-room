@@ -1,0 +1,21 @@
+{
+  "name": "live-room-app",
+  "version": "1.0.1",
+  "description": "The backend service for application",
+  "main": "index.js",
+  "url" : "https://github.com/TencentServerlessApps/live-room/issues",
+  "dependencies": {
+    "auth_users": "file:auth_users",
+    "dotenv": "^10.0.0",
+    "fs": "^0.0.1-security",
+    "js-core": "file:js-core",
+    "js-kernel": "file:js-kernel",
+    "koa": "^2.13.1",
+    "koa-bodyparser": "^4.3.0",
+    "koa-router": "^10.1.1",
+    "koa2-cors": "^2.0.6",
+    "moment": "^2.29.1",
+    "oauth": "file:oauth",
+    "rooms": "file:rooms"
+  }
+}

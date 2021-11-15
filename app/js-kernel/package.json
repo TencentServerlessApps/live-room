@@ -1,0 +1,9 @@
+{
+  "name": "js-kernel",
+  "version": "1.0.0",
+  "description": "The shared kernel module for nodejs",
+  "main": "index.js",
+  "dependencies": {
+    "js-core": "file:../js-core"
+  }
+}

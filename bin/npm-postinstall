@@ -1,0 +1,27 @@
+#!/usr/bin/env node
+
+console.log(`postinstal for ${process.platform}`);
+
+// touch .env
+const fs = require('fs');
+if (!fs.existsSync('.env')) {
+    let content = [
+        'TRTC_TIM_APPID=xxxxxxxxxxxxxxxx',
+        'TRTC_TIM_SECRET=xxxxxxxxxxxxxxxx',
+        '',
+    ];
+    if (process.platform === 'win32') {
+        content = content.concat(['SERVERLESS_PLATFORM_VENDOR=tencent', '']);
+    }
+    fs.writeFileSync('.env', content.join('\n'));
+    console.log('Create default .env file, please modify it');
+}
+
+// cd app && npm install
+console.log('cd app && npm install');
+const { execSync } = require( 'child_process' );
+const output = execSync(`cd app && npm install`);
+console.log(output.toString());
+
+// @see https://shapeshed.com/writing-cross-platform-node/
+

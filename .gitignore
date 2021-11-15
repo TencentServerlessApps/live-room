@@ -1,0 +1,17 @@
+.idea
+.env
+.env.*
+.tmp.*
+.build
+.DS_Store
+objs
+node_modules
+/scf
+/previous
+/*.txt
+/rtc
+/versions
+/getUserSig
+*.zip
+jmeter.log
+/test.json

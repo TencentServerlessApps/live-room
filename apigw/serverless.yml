@@ -1,0 +1,22 @@
+app: live-room
+stage: prod # The debugger only for test env.
+
+component: apigateway
+name: live_room_apigw
+
+inputs:
+  region: ap-guangzhou
+  serviceName: live_room_apigw
+  environment: release
+  protocols:
+    - http
+    - https
+  endpoints:
+    - path: /helloworld
+      protocol: HTTP
+      method: ANY # GET POST PUT DELETE HEAD ANY
+      apiName: 'mock-api'
+      serviceType: MOCK
+      serviceMockReturnMessage: '"HelloWorld"'
+
+# https://github.com/serverless-components/tencent-apigateway/blob/master/docs/configure.md

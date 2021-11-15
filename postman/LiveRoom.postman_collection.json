@@ -1,0 +1,1120 @@
+{
+	"info": {
+		"_postman_id": "1405183a-0d48-42df-a7f4-4e01aec86e82",
+		"name": "LiveRoom",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "oauth",
+			"item": [
+				{
+					"name": "oauth/register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();\r",
+									"\r",
+									"pm.test(\"check error\", function () {\r",
+									"    pm.expect(res.errorCode).to.eql(0);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"",
+									"function setQuery(key, value) {",
+									"    pm.request.url.removeQueryParams(key);",
+									"    pm.request.url.addQueryParams({key: key, value: value});",
+									"}",
+									"",
+									"const username = Math.random().toString(16).slice(-8);",
+									"pm.collectionVariables.set('username', username);",
+									"setQuery('username', username);",
+									"",
+									"const password = Math.random().toString(16).slice(-12);",
+									"pm.collectionVariables.set('password', password);",
+									"",
+									"const ts = new Date().getTime().toString();",
+									"const nonce = Math.random().toString().slice(-6);",
+									"const salt = CryptoJS.MD5(`${username}-${password}-${ts}-${nonce}`).toString();",
+									"pm.collectionVariables.set('salt', salt);",
+									"setQuery('salt', salt);",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{service}}/base/v1/oauth/register?username=&salt",
+							"host": [
+								"{{service}}"
+							],
+							"path": [
+								"base",
+								"v1",
+								"oauth",
+								"register"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "",
+									"description": "用户名称或者UIN等标识，由脚本生成"
+								},
+								{
+									"key": "salt",
+									"value": null,
+									"description": "用户签名的salt，由脚本生成"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "oauth/signature",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();\r",
+									"pm.collectionVariables.set('token', res.data.token);\r",
+									"pm.collectionVariables.set('userId', res.data.userId);\r",
+									"pm.collectionVariables.set('sdkAppId', res.data.sdkAppId);\r",
+									"\r",
+									"pm.test(\"check error\", function () {\r",
+									"    pm.expect(res.errorCode).to.eql(0);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"check fields\", function () {\r",
+									"    pm.expect(res).to.have.property('data');\r",
+									"    pm.expect(res.data).to.has.property('userId');\r",
+									"    pm.expect(res.data).to.has.property('token');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"check types\", function () {\r",
+									"    pm.expect(res.data.userId).to.be.a('string');\r",
+									"    pm.expect(res.data.token).to.be.a('string');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"",
+									"const ts = new Date().getTime().toString();",
+									"pm.request.url.removeQueryParams('ts');",
+									"pm.request.url.addQueryParams({key: 'ts', value: ts});",
+									"",
+									"const nonce = Math.random().toString().slice(-6);",
+									"pm.request.url.removeQueryParams('nonce');",
+									"pm.request.url.addQueryParams({key: 'nonce', value: nonce});",
+									"",
+									"const username = pm.collectionVariables.get(\"username\");",
+									"const {tag} = pm.request.url.query.toObject();",
+									"",
+									"const clientSecret = pm.collectionVariables.get('salt');",
+									"const signature = CryptoJS.MD5(`${username}-${tag}-${ts}-${nonce}-${clientSecret}`).toString();",
+									"pm.request.url.removeQueryParams('signature');",
+									"pm.request.url.addQueryParams({key: 'signature', value: signature});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{service}}/base/v1/oauth/signature?username={{username}}&tag=player&hash=md5&ts&nonce&signagure",
+							"host": [
+								"{{service}}"
+							],
+							"path": [
+								"base",
+								"v1",
+								"oauth",
+								"signature"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"description": "用户名称或者UIN等标识"
+								},
+								{
+									"key": "tag",
+									"value": "player",
+									"description": "用户角色，由业务定义"
+								},
+								{
+									"key": "hash",
+									"value": "md5",
+									"description": "签名算法，md5"
+								},
+								{
+									"key": "ts",
+									"value": null,
+									"description": "当前Unix时间戳，由脚本生成"
+								},
+								{
+									"key": "nonce",
+									"value": null,
+									"description": "随机数，由脚本生成"
+								},
+								{
+									"key": "signagure",
+									"value": null,
+									"description": "用户签名，由脚本生成"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "auth_users",
+			"item": [
+				{
+					"name": "auth_users/user_login_token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();\r",
+									"pm.collectionVariables.set('token', res.data.token);\r",
+									"pm.collectionVariables.set('userId', res.data.userId);\r",
+									"pm.collectionVariables.set('sdkAppId', res.data.sdkAppId);\r",
+									"\r",
+									"pm.test(\"check error\", function () {\r",
+									"    pm.expect(res.errorCode).to.eql(0);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"check fields\", function () {\r",
+									"    pm.expect(res).to.have.property('data');\r",
+									"    pm.expect(res.data).to.has.property('token');\r",
+									"    pm.expect(res.data).to.has.property('expire');\r",
+									"    pm.expect(res.data).to.has.property('phone');\r",
+									"    pm.expect(res.data).to.has.property('email');\r",
+									"    pm.expect(res.data).to.has.property('name');\r",
+									"    pm.expect(res.data).to.has.property('avatar');\r",
+									"});\r",
+									"\r",
+									"// @see https://learning.postman.com/docs/writing-scripts/script-references/test-examples/#asserting-object-properties\r",
+									"pm.test(\"check apaas apis\", function () {\r",
+									"    pm.expect(res.data).to.have.property('apaasUserId');\r",
+									"    pm.expect(res.data).to.have.property('sdkUserSig');\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.collectionVariables.get('userId') || !pm.collectionVariables.get('token')) {",
+									"    throw new Error('please run user_login_code first');",
+									"}",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{service}}/base/v1/auth_users/user_login_token?userId={{userId}}&token={{token}}",
+							"host": [
+								"{{service}}"
+							],
+							"path": [
+								"base",
+								"v1",
+								"auth_users",
+								"user_login_token"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{userId}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								},
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "auth_users/user_update",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.collectionVariables.get('userId') || !pm.collectionVariables.get('token')) {",
+									"    throw new Error('please run user_login_code first');",
+									"}",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"",
+									"pm.test(\"check error\", function () {",
+									"    pm.expect(res.errorCode).to.eql(0);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{service}}/base/v1/auth_users/user_update?userId={{userId}}&token={{token}}&name=Guest&tag=im&tag2=mlvb",
+							"host": [
+								"{{service}}"
+							],
+							"path": [
+								"base",
+								"v1",
+								"auth_users",
+								"user_update"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{userId}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								},
+								{
+									"key": "name",
+									"value": "Guest"
+								},
+								{
+									"key": "tag",
+									"value": "im"
+								},
+								{
+									"key": "tag2",
+									"value": "mlvb"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "auth_users/user_query",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.collectionVariables.get('userId') || !pm.collectionVariables.get('token')) {",
+									"    throw new Error('please run user_login_code first');",
+									"}",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"",
+									"pm.test(\"check error\", function () {",
+									"    pm.expect(res.errorCode).to.eql(0);",
+									"});",
+									"",
+									"pm.test(\"check fields\", function () {",
+									"    pm.expect(res).to.have.property('data');",
+									"    pm.expect(res.data).to.has.property('avatar');",
+									"    pm.expect(res.data.name).to.eql('Guest');",
+									"});",
+									"",
+									"pm.test(\"check fields tags\", function () {",
+									"    pm.expect(res.data.tag).to.eql('im');",
+									"    pm.expect(res.data.tag2).to.eql('mlvb');",
+									"});",
+									"",
+									"// @see https://learning.postman.com/docs/writing-scripts/script-references/test-examples/#asserting-object-properties",
+									"pm.test(\"check apaas apis\", function () {",
+									"    pm.expect(res.data).to.have.property('apaasUserId');",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{service}}/base/v1/auth_users/user_query?userId={{userId}}&token={{token}}",
+							"host": [
+								"{{service}}"
+							],
+							"path": [
+								"base",
+								"v1",
+								"auth_users",
+								"user_query"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{userId}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "auth_users/user_keepalive",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.collectionVariables.get('userId') || !pm.collectionVariables.get('token')) {",
+									"    throw new Error('please run user_login_code first');",
+									"}",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"",
+									"pm.test(\"check error\", function () {",
+									"    pm.expect(res.errorCode).to.eql(0);",
+									"});",
+									"",
+									"pm.test(\"check fields\", function () {",
+									"    pm.expect(res).to.have.property('data');",
+									"    pm.expect(res.data).to.has.property('updateUtc');",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{service}}/base/v1/auth_users/user_keepalive?userId={{userId}}&token={{token}}",
+							"host": [
+								"{{service}}"
+							],
+							"path": [
+								"base",
+								"v1",
+								"auth_users",
+								"user_keepalive"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{userId}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "rooms",
+			"item": [
+				{
+					"name": "rooms/enter_room",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();\r",
+									"pm.collectionVariables.set('roomId', res.data.roomId);\r",
+									"\r",
+									"pm.test(\"check error\", function () {\r",
+									"    pm.expect(res.errorCode).to.eql(0);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"check fields\", function () {\r",
+									"    pm.expect(res).to.have.property('data');\r",
+									"    pm.expect(res.data).to.has.property('roomId');\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.collectionVariables.get('userId') || !pm.collectionVariables.get('token')) {",
+									"    throw new Error('please run user_login_code first');",
+									"}",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{service}}/base/v1/rooms/enter_room?token={{token}}&userId={{userId}}&category=liveRoom&title=MyRoom&appId={{sdkAppId}}",
+							"host": [
+								"{{service}}"
+							],
+							"path": [
+								"base",
+								"v1",
+								"rooms",
+								"enter_room"
+							],
+							"query": [
+								{
+									"key": "token",
+									"value": "{{token}}"
+								},
+								{
+									"key": "userId",
+									"value": "{{userId}}"
+								},
+								{
+									"key": "category",
+									"value": "liveRoom"
+								},
+								{
+									"key": "title",
+									"value": "MyRoom"
+								},
+								{
+									"key": "appId",
+									"value": "{{sdkAppId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "rooms/room_detail",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.collectionVariables.get('userId') || !pm.collectionVariables.get('token')) {",
+									"    throw new Error('please run user_login_code first');",
+									"}",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"",
+									"pm.test(\"check error\", function () {",
+									"    pm.expect(res.errorCode).to.eql(0);",
+									"});",
+									"",
+									"pm.test(\"check fields\", function () {",
+									"    pm.expect(res).to.have.property('data');",
+									"    pm.expect(res.data.roomId).to.eqls(pm.collectionVariables.get('roomId'));",
+									"    pm.expect(res.data.removed).to.be.eql(0);",
+									"    pm.expect(res.data.nnUsers).to.be.eql(1);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{service}}/base/v1/rooms/room_detail?token={{token}}&userId={{userId}}&roomId={{roomId}}",
+							"host": [
+								"{{service}}"
+							],
+							"path": [
+								"base",
+								"v1",
+								"rooms",
+								"room_detail"
+							],
+							"query": [
+								{
+									"key": "token",
+									"value": "{{token}}"
+								},
+								{
+									"key": "userId",
+									"value": "{{userId}}"
+								},
+								{
+									"key": "roomId",
+									"value": "{{roomId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "rooms/query_room",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.collectionVariables.get('userId') || !pm.collectionVariables.get('token')) {",
+									"    throw new Error('please run user_login_code first');",
+									"}",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"",
+									"pm.test(\"check error\", function () {",
+									"    pm.expect(res.errorCode).to.eql(0);",
+									"});",
+									"",
+									"pm.test(\"check fields\", function () {",
+									"    pm.expect(res).to.have.property('data');",
+									"    pm.expect(res.data.length).to.gt(0);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{service}}/base/v1/rooms/query_room?token={{token}}&userId={{userId}}&category=liveRoom&limit=10&appId={{sdkAppId}}",
+							"host": [
+								"{{service}}"
+							],
+							"path": [
+								"base",
+								"v1",
+								"rooms",
+								"query_room"
+							],
+							"query": [
+								{
+									"key": "token",
+									"value": "{{token}}"
+								},
+								{
+									"key": "userId",
+									"value": "{{userId}}"
+								},
+								{
+									"key": "category",
+									"value": "liveRoom"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "appId",
+									"value": "{{sdkAppId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "rooms/list_users",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.collectionVariables.get('userId') || !pm.collectionVariables.get('token')) {",
+									"    throw new Error('please run user_login_code first');",
+									"}",
+									"",
+									"if (!pm.collectionVariables.get('roomId')) {",
+									"    throw new Error('please run enter_room first');",
+									"}",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"",
+									"pm.test(\"check error\", function () {",
+									"    pm.expect(res.errorCode).to.eql(0);",
+									"});",
+									"",
+									"pm.test(\"check fields\", function () {",
+									"    pm.expect(res).to.have.property('data');",
+									"    pm.expect(res.data.length).to.gt(0);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{service}}/base/v1/rooms/list_users?token={{token}}&userId={{userId}}&roomId={{roomId}}&limit=10",
+							"host": [
+								"{{service}}"
+							],
+							"path": [
+								"base",
+								"v1",
+								"rooms",
+								"list_users"
+							],
+							"query": [
+								{
+									"key": "token",
+									"value": "{{token}}"
+								},
+								{
+									"key": "userId",
+									"value": "{{userId}}"
+								},
+								{
+									"key": "roomId",
+									"value": "{{roomId}}"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "rooms/leave_room",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.collectionVariables.get('userId') || !pm.collectionVariables.get('token')) {",
+									"    throw new Error('please run user_login_code first');",
+									"}",
+									"",
+									"if (!pm.collectionVariables.get('roomId')) {",
+									"    throw new Error('please run enter_room first');",
+									"}",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"",
+									"pm.test(\"check error\", function () {",
+									"    pm.expect(res.errorCode).to.eql(0);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{service}}/base/v1/rooms/leave_room?token={{token}}&userId={{userId}}&roomId={{roomId}}",
+							"host": [
+								"{{service}}"
+							],
+							"path": [
+								"base",
+								"v1",
+								"rooms",
+								"leave_room"
+							],
+							"query": [
+								{
+									"key": "token",
+									"value": "{{token}}"
+								},
+								{
+									"key": "userId",
+									"value": "{{userId}}"
+								},
+								{
+									"key": "roomId",
+									"value": "{{roomId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "rooms/destroy_room",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.collectionVariables.get('userId') || !pm.collectionVariables.get('token')) {",
+									"    throw new Error('please run user_login_code first');",
+									"}",
+									"",
+									"if (!pm.collectionVariables.get('roomId')) {",
+									"    throw new Error('please run enter_room first');",
+									"}",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"",
+									"pm.test(\"check error\", function () {",
+									"    pm.expect(res.errorCode).to.eql(0);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{service}}/base/v1/rooms/destroy_room?token={{token}}&userId={{userId}}&roomId={{roomId}}",
+							"host": [
+								"{{service}}"
+							],
+							"path": [
+								"base",
+								"v1",
+								"rooms",
+								"destroy_room"
+							],
+							"query": [
+								{
+									"key": "token",
+									"value": "{{token}}"
+								},
+								{
+									"key": "userId",
+									"value": "{{userId}}"
+								},
+								{
+									"key": "roomId",
+									"value": "{{roomId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "cleanup_users",
+			"item": [
+				{
+					"name": "cleanup_users/user_logout",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.collectionVariables.get('userId') || !pm.collectionVariables.get('token')) {",
+									"    throw new Error('please run user_login_code first');",
+									"}",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"",
+									"pm.test(\"check error\", function () {",
+									"    pm.expect(res.errorCode).to.eql(0);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{service}}/base/v1/auth_users/user_logout?userId={{userId}}&token={{token}}",
+							"host": [
+								"{{service}}"
+							],
+							"path": [
+								"base",
+								"v1",
+								"auth_users",
+								"user_logout"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{userId}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "cleanup_users/user_delete",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.collectionVariables.get('userId') || !pm.collectionVariables.get('token')) {",
+									"    throw new Error('please run user_login_code first');",
+									"}",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"",
+									"pm.test(\"check error\", function () {",
+									"    pm.expect(res.errorCode).to.eql(0);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{service}}/base/v1/auth_users/user_delete?userId={{userId}}&token={{token}}",
+							"host": [
+								"{{service}}"
+							],
+							"path": [
+								"base",
+								"v1",
+								"auth_users",
+								"user_delete"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{userId}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"const envService = pm.environment.get(\"LIVE_ROOM_SERVICE\");",
+					"const localService = pm.collectionVariables.get('localService');",
+					"pm.collectionVariables.set('service', envService || localService);",
+					"",
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "localService",
+			"value": "http://localhost:9000/local"
+		},
+		{
+			"key": "service",
+			"value": ""
+		},
+		{
+			"key": "username",
+			"value": ""
+		},
+		{
+			"key": "password",
+			"value": ""
+		},
+		{
+			"key": "salt",
+			"value": ""
+		},
+		{
+			"key": "token",
+			"value": ""
+		},
+		{
+			"key": "userId",
+			"value": ""
+		},
+		{
+			"key": "sdkAppId",
+			"value": ""
+		},
+		{
+			"key": "roomId",
+			"value": ""
+		}
+	]
+}
