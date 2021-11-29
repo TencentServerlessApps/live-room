@@ -21,7 +21,7 @@ For example:
     const r0 = await redis.set('KEY', 'VALUE');
  */
 function create({config, redis}) {
-  const connect = function() {
+  const connect = function () {
     if (!redis) throw errors.create(errors.SystemVerifyError, `redis required`);
     if (!config) throw errors.create(errors.SystemVerifyError, `config required`);
     if (!config.host) throw errors.create(errors.SystemVerifyError, `config.host required`);
@@ -40,28 +40,39 @@ function create({config, redis}) {
     return client;
   };
 
+  const client = connect();
   return {
+    del: async function (key) {
+      return await client.del(key);
+    },
     // @see https://redis.io/commands/set
     set: async function (key, value) {
-      const client = connect();
       return await client.set(key, value);
+    },
+    get: async function (key) {
+      return await client.get(key);
     },
     // @see https://redis.io/commands/hset
     hset: async function (key, field, value) {
-      const client = connect();
       return await client.hset(key, field, value);
     },
     hget: async function (key, field) {
-      const client = connect();
       return await client.hget(key, field);
     },
     hdel: async function (key, field) {
-      const client = connect();
       return await client.hdel(key, field);
     },
     hscan: async function (key, cursor, match, count) {
-      const client = connect();
       return await client.hscan(key, cursor, 'MATCH', match, 'COUNT', count);
+    },
+    hkeys: async function (key) {
+      return await client.hkeys(key);
+    },
+    hgetall: async function (key) {
+      return await client.hgetall(key);
+    },
+    time: async function() {
+      return await client.time();
     }
   };
 }
