@@ -89,6 +89,221 @@ Q: 如何确认函数创建成功？
 | 2004  | RoomNotExists     | 房间不存在        |
 | 2006  | RoomsUserExists   | 用户已经在房间中   |
 
+### 接口：Token登录
+Token登录是更快捷的登录方式，可以实现客户端一定时间免登录。客户端可以将token存储在本地，下次使用token登录，避免每次都需要输验证码。
+
+**接口地址：*/base/v1/auth_users/user_login_token***
+
+**请求参数：用户（请参考用户信息），例如：**
+```json
+{
+  // 用户(user)信息
+  "userId": "xxx-1000019",
+  "token": "dd243f4.......c32742af3bf6cb",
+  "apaasUserId": "xxx-1000019" // 多租户
+}
+```
+
+**特别说明：**
+* apaasAppId：若登录到默认租户，可以不传。若非默认租户，必须设置为指定租户。
+* userId和token是用户的账号（手机号或邮箱等）信息，后台会返回apaasUserId。
+* token有效期是30天。
+
+**返回值：错误码和鉴权信息（请参考用户信息）。**
+* 若数据操作失败，返回ServiceDBFailed(103)。
+* 若Token已过期，返回UserTokenExpired(203)。
+* 若Token不正确，返回UserTokenInvalid(204)。
+* 返回新的token和expire过期UTC时间。
+* 这些信息给SDK鉴权使用，可以直接给SDK。
+```json
+{
+  "errorCode": 0,
+  "errorMessage": "login done",
+  "data": {
+    "userId": "xxx-1000019",
+    "sdkAppId": 1400544182,
+    "sdkUserSig": "eJwtjMEKwjA.............bKC9S",
+    "token": "9d0dk28r31........c327id192k9f",
+    "expire": "2021-08-22 06:42:54",
+    "phone": "+8615800001111",
+    "email": "xxx@xxx.com",
+    "name": "",  // 新用户用户名为空字符串
+    "avatar": "https://xxx",
+    "apaasAppId": "xxx", // 多租户
+    "apaasUserId": "xxx-1000019" // 多租户
+  }
+}
+```
+
+具体错误码请参考错误码信息。
+
+### 接口：注销登录
+客户端请求注销登录，会在数据库清除session和token等信息，但用户信息会保留。
+
+**接口地址：*/base/v1/auth_users/user_logout***
+
+**请求参数：用户（请参考用户信息），例如：**
+```json
+{
+  "userId": "xxx-1000019",
+  "token": "dd243f4.......c32742af3bf6cb",
+  "apaasUserId": "xxx-1000019" // 多租户
+}
+```
+
+**返回值：错误码和鉴权信息（请参考用户信息）。**
+* 若数据操作失败，返回ServiceDBFailed(103)。
+* 若用户不存在，Token过期，Token不存在，都返回成功（已经成功注销）。
+```json
+{
+  "errorCode": 0,
+  "errorMessage": "user logout ok"
+}
+```
+
+具体错误码请参考错误码信息。
+
+### 接口：删除用户
+客户端请求删除账号，在数据库清除用户相关的账户和临时登录信息。
+
+**接口地址：*/base/v1/auth_users/user_delete***
+
+**请求参数：用户（请参考用户信息），例如：**
+```json
+{
+  "userId": "xxx-1000019",
+  "token": "dd243f4.......c32742af3bf6cb",
+  "apaasUserId": "xxx-1000019" // 多租户
+}
+```
+
+**返回值：错误码和鉴权信息（请参考用户信息）。**
+* 若数据操作失败，返回ServiceDBFailed(103)。
+* 若Token已过期，返回UserTokenExpired(203)。
+* 若Token不正确，返回UserTokenInvalid(204)。
+* 若用户不存在，返回成功（已经成功删除）。
+```json
+{
+  "errorCode": 0,
+  "errorMessage": "user delete ok"
+}
+```
+
+具体错误码请参考错误码信息。
+
+### 接口：修改用户信息
+用户可以修改用户信息，比如设置用户名，或者绑定邮箱（手机登录），或设置手机号（邮箱登录）。新用户直接登录后，用户名为空，也可以用这个来判断用户是新用户。
+客户端请求注销登录，用户的临时信息。
+
+**接口地址：*/base/v1/auth_users/user_update***
+
+**请求参数：用户（请参考用户信息），例如：**
+```json
+{
+  "userId": "xxx-1000019",
+  "token": "dd243f4.......c32742af3bf6cb",
+  "name": "Alice", // 可选
+  "tag": "im", // 可选
+  "tag2": "mlvb", // 可选
+  "avatar": "https://xxx", // 可选
+  "apaasUserId": "xxx-1000019" // 多租户
+}
+```
+
+**特别说明：**
+* name，用户名，昵称。限制125个字符。可以是中文。
+* tag，用户标签，用户类型等，用作分类用户。
+* tag2，用户标签2，用户类型2等，用做分类用户。
+
+**返回值：错误码和鉴权信息（请参考用户信息）。**
+* 若数据操作失败，返回ServiceDBFailed(103)。
+* 若Token已过期，返回UserTokenExpired(203)。
+* 若Token不正确，返回UserTokenInvalid(204)。
+* 若name/tag/tag2全部为空，返回UseInfoEmpty(205)。
+* 若name和之前一致，返回成功（设置成功）。
+```json
+{
+  "errorCode": 0,
+  "errorMessage": "update ok"
+}
+```
+
+具体错误码请参考错误码信息。
+
+### 接口：获取用户信息
+用户登录后，可以查询自己以及其他用户的信息。
+
+**接口地址：*/base/v1/auth_users/user_query***
+
+**请求参数：用户（请参考用户信息），例如：**
+```json
+{
+  "userId": "xxx-1000019",
+  "token": "dd243f4.......c32742af3bf6cb",
+  "searchUserId": "200001", // 可选
+  "searchPhone": "+8618500002222", // 可选
+  "apaasUserId": "xxx-1000019" // 多租户 
+}
+```
+
+**特别说明：**
+* userId和token用来鉴权。若search参数没有指定，则获取用户自己的详细信息。
+* searchUserId：获取指定的用户的信息，按用户ID（userId）查询。
+* searchPhone：获取指定的用户的信息，按手机号（phone）查询。
+
+**返回值：错误码和鉴权信息（请参考用户信息）。**
+* 若数据操作失败，返回ServiceDBFailed(103)。
+* 若Token已过期，返回UserTokenExpired(203)。
+* 若Token不正确，返回UserTokenInvalid(204)。
+* 注意：由于涉及数据安全，该接口不返回phone和email字段。
+```json
+{
+  "errorCode": 0,
+  "errorMessage": "query done",
+  "data": {
+    "userId": "xxx-1000019",
+    "name": "",  // 新用户用户名为空字符串
+    "avatar": "https://xxx",
+    "apaasUserId": "xxx-1000019" // 多租户
+  }
+}
+```
+
+具体错误码请参考错误码信息。
+
+### 接口：心跳和保活
+用户登录后，每隔10秒向服务器保活(KeepAlive)。
+* 用户若掉线，会根据不同的业务定义，更新相关的状态，比如KTV会在房主和主播掉线后，将房间设置为不可见。
+*  IM用户状态回调，也会更新用户的在线状态。
+
+**接口地址：*/base/v1/auth_users/user_keepalive***
+
+**请求参数：用户（请参考用户信息），例如：**
+```json
+{
+  "userId": "xxx-1000019",
+  "token": "dd243f4.......c32742af3bf6cb",
+  "apaasUserId": "xxx-1000019" // 多租户
+}
+```
+
+**特别说明：**
+* userId和token用来鉴权。
+
+**返回值：错误码。**
+* 若数据操作失败，返回ServiceDBFailed(103)。
+* 若Token已过期，返回UserTokenExpired(203)。
+* 若Token不正确，返回UserTokenInvalid(204)。
+```json
+{
+  "errorCode": 0,
+  "errorMessage": "keep alive done"
+}
+```
+
+具体错误码请参考错误码信息。
+
+
 ### 接口：获取房间列表
 客户端登录后，可以根据ID获取房间的详细数据。
 
