@@ -322,6 +322,90 @@ Token登录是更快捷的登录方式，可以实现客户端一定时间免登
 
 具体错误码请参考错误码信息。
 
+### OAuth：用户签名注册
+一般客户有自己的用户管理系统，包括用户注册和认证，在Demo中也提供了一种注册用户签名的方式，这样可以使用用户签名登录。
+
+**接口地址：*/base/v1/oauth/register***
+
+**请求参数：用户（请参考用户信息），例如：**
+```json
+{
+  "username": "alice",
+  "salt": "1e80a39bf9e1cb8e97cdaee2ace85281"
+}
+```
+
+**特别说明：**
+* username：用户名，也可说是ID信息，邮箱，或者手机号等等。
+* salt：使用password生成salt，例如：md5(username-password)
+* 登录验证时，用salt作为secret：signature=md5(username-tag-ts-nonce-salt)
+* 生成salt和signature的nodejs例子：
+```js
+const md5 = require('md5');
+const username = 'user', password = 'xxx';
+const salt = md5(`${username}-${password}`);
+const tag = '', ts = '', nonce = '';
+const signature = md5(`${username}-${tag}-${ts}-${nonce}-${salt}`);
+```
+
+**返回值：错误码和鉴权信息（请参考用户信息）。**
+* 这些信息给SDK鉴权使用，可以直接给SDK。
+```json
+{
+  "errorCode": 0,
+  "errorMessage": "register ok"
+}
+```
+
+具体错误码请参考错误码信息。
+
+### OAuth：用户签名登录
+使用固定的Secret，以及必要的用户信息，对消息签名后，就可以登录系统。
+
+**接口地址：*/base/v1/oauth/signature***
+
+**请求参数：用户（请参考用户信息），例如：**
+```json
+{
+  "username": "alice",
+  "signature": "b081b396acc4948019e124294c313396",
+  "tag": "player", // 可选
+  "ts": "1634543466000", // 可选
+  "nonce": "o29dmek", // 可选
+  "hash": "md5", // 可选
+  "nickname": "Guest", // 可选
+  "avatar": "http://tencent.com/xxx.png" // 可选
+}
+```
+
+**特别说明：**
+* username：用户名，也可说是ID信息，邮箱，或者手机号等等。
+* tag：签名的secret的标签，可以根据tag使用不同的secret。
+* ts：签名时的时间戳。例如：1634543466000
+* nonce：签名使用的随机字符串，也可是自定义hash。例如：o29dmek
+* hash：签名使用的算法。比如：md5。
+* signature：使用secret对这些参数签名，例如：md5(username-tag-ts-nonce-secret)
+* nickname：用户昵称，例如用来设置到IM的。
+
+**返回值：错误码和鉴权信息（请参考用户信息）。**
+* 这些信息给SDK鉴权使用，可以直接给SDK。
+```json
+{
+  "errorCode": 0,
+  "errorMessage": "signature ok",
+  "data": {
+    "userId": "xxx-1000019",
+    "sdkAppId": 1400544182,
+    "sdkUserSig": "eJwtjMEKwjA.............bKC9S",
+    "token": "9d0dk28r31........c327id192k9f",
+    "expire": "2021-08-22 06:42:54",
+    "apaasAppId": "xxx", // 多租户
+    "apaasUserId": "xxx-1000019" // 多租户
+  }
+}
+```
+
+具体错误码请参考错误码信息。
 
 ### 接口：获取房间列表
 客户端登录后，可以根据ID获取房间的详细数据。
