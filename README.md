@@ -81,13 +81,32 @@ Q: 如何确认函数创建成功？
 ### 错误码
 | 错误码 | 描述 | 含义 |
 | ---- | ---- | ---- |
-| 0     |                   |                 |
-| 2000  | RoomCreateParams  | 创建房间时参数错误 |
-| 2001  | RoomDestroyParams | 删除房间时参数错误 |
-| 2002  | RoomQueryParams   | 查询房间时参数错误 |
-| 2003  | RoomLeaveParams   | 退出房间时参数错误 |
-| 2004  | RoomNotExists     | 房间不存在        |
-| 2006  | RoomsUserExists   | 用户已经在房间中   |
+| 0     |                        |                            |
+| 98    | SystemVerifyError      | 验证用户操作或参数错误。       |
+| 99    | SystemError            | 后端未知的系统错误。           |
+| 100   | ServiceUnavailable     | 后端依赖的服务不可用。         |
+| 101   | ServiceResponseInvalid | 后端服务返回的结果不符合规范。  |
+| 102   | ServiceSmsFailed       | SMS发送短信服务失败。         |
+| 103   | ServiceDBFailed        | DB错误，SQL语句执行失败。      |
+| 104   | ServiceUnknownError    | 服务未知错误。                |
+| 200   | UserCodeInvalid        | 用户登录失败，错误的验证码。    |
+| 201   | UserCodeExpired        | 用户登录失败，验证码已过期。    |
+| 202   | UserCodeConsumed       | 验证码已经使用过了，请重新获取。 |
+| 203   | UserTokenExpired       | 用户Token已经过期，请重新登录。 |
+| 204   | UserTokenInvalid       | 用户Token不正确，请重新登录。   |
+| 205   | UseInfoEmpty           | 用户的信息为空。              |
+| 206   | UserNotExists          | 用户不存在。                  |
+| 207   | UserEmailInvalid       | 给用户发送邮件时参数错误。      |
+| 208   | UserQueryParams        | 用户查询时参数错误。           |
+| 209   | UserQueryLimit         | 用户查询数据过多，触发限流。    |
+| 210   | UserOAuthParams        | 用户OAuth参数异常。           |
+| 211   | UserAlreadyInRooms     | 用户已经在房间中。             |
+| 2000  | RoomCreateParams       | 创建房间时参数错误。           |
+| 2001  | RoomDestroyParams      | 删除房间时参数错误。           |
+| 2002  | RoomQueryParams        | 查询房间时参数错误。           |
+| 2003  | RoomLeaveParams        | 退出房间时参数错误。           |
+| 2004  | RoomNotExists          | 房间不存在。                  |
+| 2006  | RoomsUserExists        | 用户已经在房间中。             |
 
 ### 接口：Token登录
 Token登录是更快捷的登录方式，可以实现客户端一定时间免登录。客户端可以将token存储在本地，下次使用token登录，避免每次都需要输验证码。
