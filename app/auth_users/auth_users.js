@@ -18,9 +18,7 @@ function create(router) {
 
     try {
       let res = null;
-      if (ctx.params.api === 'user_login_signature') {
-        res = await require('./user_login_signature').main_handler(ctx);
-      } else if (ctx.params.api === 'user_login_token') {
+      if (ctx.params.api === 'user_login_token') {
         res = await require('./user_login_token').main_handler(ctx);
       } else if (ctx.params.api === 'user_query') {
         res = await require('./user_query').main_handler(ctx);
