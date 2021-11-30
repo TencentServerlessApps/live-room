@@ -76,7 +76,9 @@ Q: 如何确认函数创建成功？
 
 > A: 若能在浏览器访问，则函数创建正常：https://service-xxxyyzzz-1001234567.gz.apigw.tencentcs.com
 
-## DOC
+## API
+
+后端API说明。
 
 ### 错误码
 | 错误码 | 描述 | 含义 |
