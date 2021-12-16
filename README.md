@@ -76,7 +76,7 @@ Q: 如何确认函数创建成功？
 
 > A: 若能在浏览器访问，则函数创建正常：https://service-xxxyyzzz-1001234567.gz.apigw.tencentcs.com
 
-## 交流&反馈
+## Discussion & Feedback
 欢迎加入QQ群进行技术交流和反馈问题，QQ群：660488879
 
 <img src="./resource/gooup_QRCODE.jpg" height="640px" width="360px" />
