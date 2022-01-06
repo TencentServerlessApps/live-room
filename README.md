@@ -727,9 +727,6 @@ const signature = md5(`${username}-${tag}-${ts}-${nonce}-${salt}`);
 
 具体错误码请参考错误码信息。
 
-### auth_users
-
-### oauth
 ## Discussion & Feedback
 欢迎加入QQ群进行技术交流和反馈问题，QQ群：660488879
 
