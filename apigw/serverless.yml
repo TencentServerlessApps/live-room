@@ -7,6 +7,7 @@ name: live_room_apigw
 inputs:
   region: ap-guangzhou
   serviceName: live_room_apigw
+  serviceDesc: live_room_apigw
   environment: release
   protocols:
     - http
