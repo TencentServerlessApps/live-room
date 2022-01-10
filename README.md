@@ -727,6 +727,7 @@ const signature = md5(`${username}-${tag}-${ts}-${nonce}-${salt}`);
 
 具体错误码请参考错误码信息。
 
-### auth_users
+## Discussion & Feedback
+欢迎加入QQ群进行技术交流和反馈问题，QQ群：660488879
 
-### oauth
+<img src="./resource/gooup_QRCODE.jpg" height="640px" width="360px" />
